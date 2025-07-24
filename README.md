@@ -1,1 +1,1 @@
-# netproctop
+# netpidtop
