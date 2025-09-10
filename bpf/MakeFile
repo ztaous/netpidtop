@@ -1,0 +1,26 @@
+BPF_CLANG ?= clang
+BPF_LLVMSTRIP ?= llvm-strip
+
+# Choose the right target arch macro for BPF helpers (__TARGET_ARCH_xxx)
+BPF_CFLAGS ?= -O2 -g -Wall -Werror -D__TARGET_ARCH_x86 \
+	-target bpf \
+	-I. -I../include -I/usr/include
+
+OBJ := netpidtop.bpf.o
+SKEL := ../build/netpidtop.skel.h
+
+all: $(SKEL)
+
+../build:
+	mkdir -p ../build
+
+$(OBJ): netpidtop.bpf.c vmlinux.h ../include/common.h | ../build
+	$(BPF_CLANG) $(BPF_CFLAGS) -c $< -o $@
+	$(BPF_LLVMSTRIP) -g $@ || true
+
+$(SKEL): $(OBJ) | ../build
+	@command -v bpftool >/dev/null 2>&1 || { echo "bpftool not found"; exit 1; }
+	bpftool gen skeleton $(OBJ) > $(SKEL)
+
+clean:
+	rm -f *.o *.ll

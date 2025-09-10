@@ -1,0 +1,14 @@
+.PHONY: all bpf user clean
+
+all: bpf user
+
+bpf:
+	$(MAKE) -C bpf
+
+user:
+	$(MAKE) -C src
+
+clean:
+	$(MAKE) -C bpf clean || true
+	$(MAKE) -C src clean || true
+	rm -rf build

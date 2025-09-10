@@ -1,0 +1,15 @@
+CC ?= gcc
+CFLAGS ?= -O2 -g -Wall -Wextra -I../include -I../build
+LDLIBS ?= -lbpf -lelf -lz
+
+BIN := netpidtop
+SRC := main.c ui.c
+OBJ := $(SRC:.c=.o)
+
+all: $(BIN)
+
+$(BIN): $(OBJ)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDLIBS)
+
+clean:
+	rm -f $(BIN) $(OBJ)
