@@ -29,10 +29,10 @@ int process_get_name(pid_t pid, char *name, size_t size)
     return 0;
 }
 
-int process_count_sockets(pid_t pid)
+int process_get_socket_inodes(pid_t pid, size_t *inodes, int max_inodes)
 {
     char fd_path[256];
-    snprintf(fd_path, sizeof(fd_path),  "/proc/%d/fd", pid);
+    snprintf(fd_path, sizeof(fd_path), "/proc/%d/fd", pid);
 
     DIR *fd_dir = opendir(fd_path);
     if (!fd_dir) {
@@ -48,14 +48,18 @@ int process_count_sockets(pid_t pid)
         char link_path[512];
         snprintf(link_path, sizeof(link_path), "%s/%s", fd_path, entry->d_name);
 
-        char target[256];
-        ssize_t len = readlink(link_path, target, sizeof(target) - 1);
+        char link_target[256];
+        ssize_t len = readlink(link_path, link_target, sizeof(link_target) - 1);
 
         if (len > 0) {
-            target[len] = '\0';
+            link_target[len] = '\0';
 
-            if (strncmp(target, "socket:[", 8) == 0) {
-                socket_count++;
+            uint32_t inode;
+            if (sscanf(link_target, "socket:[%u]", &inode) == 1) {
+                if (socket_count < max_inodes) {
+                    inodes[socket_count] = inode;
+                    socket_count++;
+                }
             }
         }
     }
