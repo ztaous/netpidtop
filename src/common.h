@@ -1,0 +1,37 @@
+#ifndef COMMON_H
+#define COMMON_H
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <stdint.h>
+#include <sys/types.h>
+
+#define MAX_PROCESS_NAME 256
+
+typedef struct {
+    uint32_t inode;
+    uint32_t local_adr;
+    uint16_t local_port;
+    uint32_t remote_addr;
+    uint16_t remote_port;
+    uint8_t state;
+    pid_t owner_pid;
+} connection_t;
+
+typedef struct {
+    pid_t pid;
+    char name[MAX_PROCESS_NAME];
+    int socket_count;
+} process_info_t;
+
+static int is_number(const char *str) {
+    while (*str) {
+        if (*str < '0' || *str > '9') return 0;
+        str++;
+    }
+    return 1;
+}
+
+#endif // COMMON_H
