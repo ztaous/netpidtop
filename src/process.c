@@ -67,3 +67,31 @@ int process_get_socket_inodes(pid_t pid, size_t *inodes, int max_inodes)
     closedir(fd_dir);
     return socket_count;
 }
+
+void process_match_connections(connection_t *connections, int conn_count)
+{
+    DIR *proc_dir = opendir("/proc");
+    if (!proc_dir)
+        return -1;
+
+    struct dirent *entry;
+    while ((entry = readdir(proc_dir)) != NULL) {
+        if (!is_number(entry->d_name)) continue;
+
+        pid_t pid = atoi(entry->d_name);
+        uint32_t *inodes;
+        int inode_count;
+
+        if (process_get_socket_inodes(pid, &inodes, &inode_count) < 0) continue;
+
+        for (int i = 0; i < inode_count; i++) {
+            for (int j = 0; j < conn_count; j++) {
+                if (connections[j].inode == inodes[i]) {
+                    connections[j].owner_pid = pid;
+                }
+            }
+        }
+        free(inodes);
+    }
+    closedir(proc_dir);
+}
