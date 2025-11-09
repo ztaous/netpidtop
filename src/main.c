@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <unistd.h>
+#include "common.h"
+#include "process.h"
+#include "network.h"
 
 static int running = 1;
 
@@ -17,14 +20,32 @@ int main(void) {
     signal(SIGINT, signal_handler);
     signal(SIGTERM, signal_handler);
 
-    // ajouter initialisation de systèmes
+    connection_t *connections;
+    int count;
 
-    while (running) {
-        printf("main loop running\n");
-        sleep(1);
+    // while (running) {
+    //     printf("main loop running\n");
+    //     sleep(10);
+    // }
+
+    if (network_get_connections(&connections, &count) < 0) {
+        printf("Failed to read /proc/net/tcp\n");
+        return 1;
     }
 
-    // ajouter du cleanup plus tard
+    process_match_connections(connections, count);
 
+    printf("%-20s %-8s %-21s %-21s %-12s\n",
+        "Process", "PID", "Local", "Remote", "State");
+    printf("--------------------------------------------------------------------------------\n");
+
+    for (int i = 0; i < count; i++) {
+        if(connections[i].owner_pid > 0) {
+            print_connection(&connections[i]);
+        }
+    }
+    free(connections);
+    printf("\n");
+    
     return 0;
 }
