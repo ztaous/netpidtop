@@ -1,10 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -31,5 +27,6 @@ typedef struct {
 int is_number(const char *str);
 void addr_to_string(uint32_t addr, uint16_t port, char* buf, size_t size);
 const char* state_to_string(uint8_t state);
+void print_connection(connection_t* conn);
 
 #endif // COMMON_H

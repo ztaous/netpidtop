@@ -1,6 +1,8 @@
-#include "common.h"
 #include <stdio.h>
 #include <arpa/inet.h>
+#include <string.h>
+#include "common.h"
+#include "process.h"
 
 int is_number(const char* str)
 {
@@ -37,4 +39,22 @@ const char* state_to_string(uint8_t state)
         case 0x08: return "CLOSE_WAIT";
         default: return "OTHER";
     }
+}
+
+void print_connection(connection_t *conn) {
+    char proc_name[256];
+    if (process_get_name(conn->owner_pid, proc_name, sizeof(proc_name)) < 0) {
+        strcpy(proc_name, "unknown");
+    }
+
+    char local[32];
+    addr_to_string(conn->local_addr, conn->local_port, local, sizeof(local));
+
+    char remote[32];
+    addr_to_string(conn->remote_addr, conn->remote_port, remote, sizeof(remote));
+
+    printf("%-20s %-8d %-21s %-21s %-12s\n",
+            proc_name, conn->owner_pid,
+            local, remote,
+            state_to_string(conn->state));
 }
