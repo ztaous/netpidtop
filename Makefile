@@ -10,8 +10,8 @@ BUILD_DIR = build
 TARGET = netpidtop
 
 # source files
-SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/process.c
-OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/process.o
+SOURCES = $(SRC_DIR)/main.c $(SRC_DIR)/process.c $(SRC_DIR)/network.c
+OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/process.o $(BUILD_DIR)/network.o
 
 all: $(TARGET)
 
