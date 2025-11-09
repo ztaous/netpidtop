@@ -13,7 +13,7 @@
 
 typedef struct {
     uint32_t inode;
-    uint32_t local_adr;
+    uint32_t local_addr;
     uint16_t local_port;
     uint32_t remote_addr;
     uint16_t remote_port;
@@ -28,12 +28,6 @@ typedef struct {
     uint32_t inodes[MAX_SOCKETS_PER_PROCESS];
 } process_info_t;
 
-static int is_number(const char *str) {
-    while (*str) {
-        if (*str < '0' || *str > '9') return 0;
-        str++;
-    }
-    return 1;
-}
+int is_number(const char *str);
 
 #endif // COMMON_H
