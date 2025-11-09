@@ -29,5 +29,7 @@ typedef struct {
 } process_info_t;
 
 int is_number(const char *str);
+void addr_to_string(uint32_t addr, uint16_t port, char* buf, size_t size);
+const char* state_to_string(uint8_t state);
 
 #endif // COMMON_H
