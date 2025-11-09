@@ -29,8 +29,11 @@ int process_get_name(pid_t pid, char *name, size_t size)
     return 0;
 }
 
-int process_get_socket_inodes(pid_t pid, size_t *inodes, int max_inodes)
+int process_get_socket_inodes(pid_t pid, uint32_t **inodes, int *count)
 {
+    *inodes = NULL;
+    *count = 0;
+    
     char fd_path[256];
     snprintf(fd_path, sizeof(fd_path), "/proc/%d/fd", pid);
 
@@ -40,6 +43,13 @@ int process_get_socket_inodes(pid_t pid, size_t *inodes, int max_inodes)
     }
 
     int socket_count = 0;
+    size_t cap = 16;
+    uint32_t *buf = malloc(cap * sizeof *buf);
+    if (!buf) { 
+        closedir(fd_dir); 
+        return -1; 
+    }
+
     struct dirent *entry;
 
     while ((entry = readdir(fd_dir)) != NULL) {
@@ -56,23 +66,28 @@ int process_get_socket_inodes(pid_t pid, size_t *inodes, int max_inodes)
 
             uint32_t inode;
             if (sscanf(link_target, "socket:[%u]", &inode) == 1) {
-                if (socket_count < max_inodes) {
-                    inodes[socket_count] = inode;
-                    socket_count++;
+                if ((size_t)socket_count == cap) {
+                    cap *= 2;
+                    uint32_t *tmp = realloc(buf, cap * sizeof *tmp);
+                    if (!tmp) { free(buf); closedir(fd_dir); return -1; }
+                    buf = tmp;
                 }
+                buf[socket_count++] = inode;
             }
         }
     }
 
     closedir(fd_dir);
-    return socket_count;
+    *inodes = buf;
+    *count = socket_count;
+    return 0;
 }
 
 void process_match_connections(connection_t *connections, int conn_count)
 {
     DIR *proc_dir = opendir("/proc");
     if (!proc_dir)
-        return -1;
+        return;
 
     struct dirent *entry;
     while ((entry = readdir(proc_dir)) != NULL) {
