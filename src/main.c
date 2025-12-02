@@ -5,47 +5,34 @@
 #include "common.h"
 #include "process.h"
 #include "network.h"
+#include "ui.h"
 
 static int running = 1;
 
-void signal_handler(int sig) {
-    if (sig == SIGINT || sig == SIGTERM) {
-        running = 0;
-    }
-}
+int main(void)
+{
+    ui_init();
 
-int main(void) {
-    // ajout possible de root checking
+    while (running) {
+        connection_t *connections;
+        int count;
 
-    signal(SIGINT, signal_handler);
-    signal(SIGTERM, signal_handler);
-
-    connection_t *connections;
-    int count;
-
-    // while (running) {
-    //     printf("main loop running\n");
-    //     sleep(10);
-    // }
-
-    if (network_get_connections(&connections, &count) < 0) {
-        printf("Failed to read /proc/net/tcp\n");
-        return 1;
-    }
-
-    process_match_connections(connections, count);
-
-    printf("%-20s %-8s %-21s %-21s %-12s\n",
-        "Process", "PID", "Local", "Remote", "State");
-    printf("--------------------------------------------------------------------------------\n");
-
-    for (int i = 0; i < count; i++) {
-        if(connections[i].owner_pid > 0) {
-            print_connection(&connections[i]);
+        if (network_get_connections(&connections, &count) < 0) {
+            printf("Failed to read connections\n");
+            return 1;
         }
+
+        process_match_connections(connections, count);
+        ui_display_connections(connections, count);
+        free(connections);
+
+        if (ui_handle_input()) {
+            break;
+        }
+
+        usleep(500000);
     }
-    free(connections);
-    printf("\n");
-    
+
+    ui_cleanup();
     return 0;
 }
