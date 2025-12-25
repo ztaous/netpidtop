@@ -28,7 +28,7 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 clean:
 	rm -rf $(BUILD_DIR)
 	rm -rf $(TARGET) 
-	rm -rf $(TEST_DIR)
+	rm -rf $(TEST_BIN)
 
 .PHONY: clean all
 
