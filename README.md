@@ -1,4 +1,4 @@
-# netpidtop ![CI](https://github.com/ztaous/netpidtop/workflows/CI/badge.svg) ![License](https://img.shields.io/badge/license-MIT-blue.svg)
+# netpidtop ![CI](https://github.com/ztaous/netpidtop/workflows/CI/badge.svg) ![License](https://img.shields.io/badge/license-Apache%20License%202.0-blue)
 netpidtop is a terminal-based network monitoring tool for Linux. It is used to display real-time network connections per process. 
 
 For each active TCP connection, netpidtop displays the process name along with the local address, the remote address and the connection state (ESTABLISHED, LISTEN, etc.)
