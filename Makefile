@@ -67,7 +67,7 @@ sanitize: CFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
 sanitize: LDFLAGS += -fsanitize=address,undefined
 sanitize:
 	$(MAKE) clean
-	$(MAKE) test CC=clang
+	$(MAKE) test CC=clang CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # clang-format
 format-check:
