@@ -19,7 +19,7 @@ OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/process.o $(BUILD_DIR)/network.o $(BU
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) $(LIBS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS) $(LIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(BUILD_DIR)
@@ -56,7 +56,7 @@ TEST_LIBS =
 # build the test binaries
 $(TEST_DIR)/test_common: $(TEST_DIR)/test_common.c $(SRC_MODULES) $(UNITY_DIR)/unity.c
 	mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(UNITY_DIR) $^ -o $@ $(TEST_LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -I$(SRC_DIR) -I$(UNITY_DIR) $^ -o $@ $(TEST_LIBS)
 
 # run tests
 test: $(TEST_BINARIES)
