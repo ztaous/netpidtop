@@ -19,7 +19,7 @@ OBJECTS = $(BUILD_DIR)/main.o $(BUILD_DIR)/process.o $(BUILD_DIR)/network.o $(BU
 all: $(TARGET)
 
 $(TARGET): $(OBJECTS)
-	$(CC) $(OBJECTS) -o $(TARGET) $(LIBS)
+	$(CC) $(OBJECTS) -o $(TARGET) $(LDFLAGS) $(LIBS)
 
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	mkdir -p $(BUILD_DIR)
@@ -27,43 +27,47 @@ $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 
 clean:
 	rm -rf $(BUILD_DIR)
-	rm -rf $(TARGET) 
-	rm -rf $(TEST_BIN)
+	rm -rf $(TARGET)
+	rm -rf $(TEST_BINARIES)
 
 .PHONY: clean all
 
+# ---------
 
 # Unity tests
 UNITY_DIR = third_party/unity
 TEST_DIR = tests
-TEST_BIN = $(TEST_DIR)/test_core
 
 # source files needed for testing
-TEST_SOURCES = \
-	$(TEST_DIR)/test_core.c \
-	$(UNITY_DIR)/unity.c \
+SRC_MODULES = \
 	$(SRC_DIR)/process.c \
 	$(SRC_DIR)/network.c \
 	$(SRC_DIR)/common.c
+
+# test binaries
+TEST_BINARIES = \
+	$(TEST_DIR)/test_common
 
 # to test future libraries if needed
 TEST_LIBS =
 
 .PHONY: test sanitize format-check
 
-test: $(TEST_BIN)
-	./$(TEST_BIN)
-
-$(TEST_BIN): $(TEST_SOURCES)
+# build the test binaries
+$(TEST_DIR)/test_common: $(TEST_DIR)/test_common.c $(SRC_MODULES) $(UNITY_DIR)/unity.c
 	mkdir -p $(TEST_DIR)
-	$(CC) $(CFLAGS) -I$(SRC_DIR) -I$(UNITY_DIR) $(TEST_SOURCES) -o $(TEST_BIN) $(TEST_LIBS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -I$(SRC_DIR) -I$(UNITY_DIR) $^ -o $@ $(TEST_LIBS)
+
+# run tests
+test: $(TEST_BINARIES)
+	@$(TEST_DIR)/run_tests.sh
 
 # sanitizer build
 sanitize: CFLAGS += -fsanitize=address,undefined -fno-omit-frame-pointer
 sanitize: LDFLAGS += -fsanitize=address,undefined
 sanitize:
 	$(MAKE) clean
-	$(MAKE) test CC=clang
+	$(MAKE) test CC=clang CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)"
 
 # clang-format
 format-check:
