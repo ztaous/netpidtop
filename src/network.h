@@ -5,4 +5,4 @@
 
 int network_get_connections(connection_t **connections, int *count);
 
-#endif // NETOWRK_H
+#endif // NETWORK_H
